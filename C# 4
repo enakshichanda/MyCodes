@@ -1,0 +1,600 @@
+/*Creating an application for investment product called ‘InvestMe’, in which a client invests a principal
+ * sum of money and receive returns depending on the amount and duration of the Investment (terms ranging from 1 to 10 years)
+ */
+using System;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+
+namespace Assignment4_F
+{
+    public partial class investMeForm : Form
+    {
+
+        public investMeForm()
+        {
+            //on form loads requirements
+            InitializeComponent();
+            summaryGroupBox.Visible = false;
+            customerDetailsGroupBox.Visible = false;
+            confirmButton.Visible = false;
+            proceedButton.Visible = false;
+            investmentsOneGroupBox.Visible = false;
+            searchTextBox.Visible = false;
+            transactionRadioButton.Visible = false;
+            emailRadioButton.Visible = false;
+            searchGroupBox.Visible = false;
+            displayLabel.Visible = false;
+
+        }
+
+        decimal investmentValue, rateDisplay, compoundedBalance;
+        int termDuration;
+        string textDescription = "";
+        string fullTextLine;
+
+        
+        const double BONUS_AMOUNT = 25000;//constant value for bonus for investments greater than 1 million
+        const int YEAR_ONE = 1, YEAR_THREE = 3, YEAR_FIVE = 5, YEAR_TEN = 10;
+        int sizeOfItem = 15; //variable declaration for total values count saved in a file
+        //constant interest values
+        const decimal INTEREST_ONE = 0.50000m, INTEREST_THREE = 0.62500m, INTEREST_FIVE = 0.71250m, INTEREST_TEN = 1.01250m;
+        const decimal INTEREST_RATE_ONE = 0.60000m, INTEREST_RATE_THREE = 0.72500m, INTEREST_RATE_FIVE = 0.81250m, INTEREST_RATE_TEN = 1.02500m;
+
+        //File created to save transaction and customer data
+        const string PATH = "Transaction.txt";
+
+        private void investmentValueTextBox_MouseHover(object sender, EventArgs e)
+        {
+            //Mouse Hover to enter investment value
+            ToolTip t1 = new ToolTip();
+            t1.Active = true;
+            t1.AutoPopDelay = 2000;
+            t1.InitialDelay = 400;
+            t1.IsBalloon = true;
+            t1.ToolTipIcon = ToolTipIcon.Info;
+            t1.SetToolTip(investmentValueTextBox, "Please enter Investment Value");
+        }
+
+        private void custNameTextBox_MouseHover(object sender, EventArgs e)
+        {
+            //Mouse Hover to enter customer name
+            ToolTip t2 = new ToolTip();
+            t2.Active = true;
+            t2.AutoPopDelay = 2000;
+            t2.InitialDelay = 400;
+            t2.IsBalloon = true;
+            t2.ToolTipIcon = ToolTipIcon.Info;
+            t2.SetToolTip(custNameTextBox, "Please enter Customer Name");
+        }
+
+        private void phoneNumberTextBox_MouseHover(object sender, EventArgs e)
+        {
+            //Mouse hover to enter phone number
+            ToolTip t4 = new ToolTip();
+            t4.Active = true;
+            t4.AutoPopDelay = 2000;
+            t4.InitialDelay = 400;
+            t4.IsBalloon = true;
+            t4.ToolTipIcon = ToolTipIcon.Info;
+            t4.SetToolTip(phoneNumberTextBox, "Please enter Customer Phone Number");
+
+        }
+
+        private void emailTextBox_MouseHover(object sender, EventArgs e)
+        {
+            //Mouse hover to enter email ID
+            ToolTip t3 = new ToolTip();
+            t3.Active = true;
+            t3.AutoPopDelay = 2000;
+            t3.InitialDelay = 400;
+            t3.IsBalloon = true;
+            t3.ToolTipIcon = ToolTipIcon.Info;
+            t3.SetToolTip(emailTextBox, "Please enter Customer Email");
+
+        }
+
+        private void searchTextBox_MouseHover(object sender, EventArgs e)
+        {
+            //Mouse Hover to enter trsancation id or email id
+            ToolTip t4 = new ToolTip();
+            t4.Active = true;
+            t4.AutoPopDelay = 2000;
+            t4.InitialDelay = 400;
+            t4.IsBalloon = true;
+            t4.ToolTipIcon = ToolTipIcon.Info;
+            t4.SetToolTip(searchTextBox, "Please enter your Transaction Id or Email Id");
+
+        }
+
+        private void exitButton_MouseHover(object sender, EventArgs e)
+        {
+            //Mouse hover to exit the application
+            ToolTip t5 = new ToolTip();
+            t5.Active = true;
+            t5.AutoPopDelay = 2000;
+            t5.InitialDelay = 400;
+            t5.IsBalloon = true;
+            t5.ToolTipIcon = ToolTipIcon.Info;
+            t5.SetToolTip(exitButton, "Click to close the application");
+        }
+
+        private void clearButton_MouseHover(object sender, EventArgs e)
+        {
+            //Mouse hover for clear the application for entering new details
+            ToolTip t6 = new ToolTip();
+            t6.Active = true;
+            t6.AutoPopDelay = 2000;
+            t6.InitialDelay = 400;
+            t6.IsBalloon = true;
+            t6.ToolTipIcon = ToolTipIcon.Info;
+            t6.SetToolTip(clearButton, "Click to clear the data and enter new Customer details ");
+
+        }
+
+        private void summaryButton_MouseHover(object sender, EventArgs e)
+        {
+            //Mouse hover to display transaction summary
+            ToolTip t7 = new ToolTip();
+            t7.Active = true;
+            t7.AutoPopDelay = 2000;
+            t7.InitialDelay = 400;
+            t7.IsBalloon = true;
+            t7.ToolTipIcon = ToolTipIcon.Info;
+            t7.SetToolTip(summaryButton, "Summary details of all the transactions");
+        }
+
+        private void transactionRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            searchTextBox.Visible = true;
+            searchTextBox.Text = "";
+            searchDisplayListBox.Items.Clear();
+        }
+
+        private void emailRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            searchTextBox.Visible = true;
+            searchTextBox.Text = "";
+            searchDisplayListBox.Items.Clear();
+        }
+
+        private void searchButton_MouseHover(object sender, EventArgs e)
+        {
+            //Mouse hover to search transactions
+            ToolTip t8 = new ToolTip();
+            t8.Active = true;
+            t8.AutoPopDelay = 2000;
+            t8.InitialDelay = 400;
+            t8.IsBalloon = true;
+            t8.ToolTipIcon = ToolTipIcon.Info;
+            t8.SetToolTip(summaryButton, "Click here to search for your transactions");
+        }
+
+        //email id validation using regular expressions
+        Regex emailIdValidation = new Regex(@"^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$");
+
+        private void searchButton_Click(object sender, EventArgs e)
+        {
+            //control functionalities after search button is clicked
+            summaryGroupBox.Visible = false;
+            investmentGroupBox.Visible = false;
+            investmentsOneGroupBox.Visible = false;
+            customerDetailsGroupBox.Visible = false;
+            displayLabel.Visible = false;
+
+            if (!searchTextBox.Visible)
+            {
+                searchGroupBox.Visible = true;
+                transactionRadioButton.Visible = true;
+                emailRadioButton.Visible = true;
+            }
+            else
+            { 
+                textDescription = "";
+                searchDisplayListBox.Items.Clear();
+                string FormatedStringValue;
+                string FormatedStringDisplay;
+
+                /*after email radiobutton is checked, it searches the file with the email id, and fetches/reads the transactions
+                 * data from the file for that respective email ID */
+                if (emailRadioButton.Checked)
+            {
+                    
+                    if (emailIdValidation.IsMatch(searchTextBox.Text.Trim()))
+                {
+                    using (StreamReader file = new StreamReader(PATH))
+                    {
+
+
+                        while ((fullTextLine = file.ReadLine()) != null)
+                        {
+                                FormatedStringValue = "";
+                                for (int i = 0; i < sizeOfItem; i++)
+                            {
+                                FormatedStringValue += fullTextLine;
+                                if (i % 2 == 0) FormatedStringValue += ":";
+                                else FormatedStringValue += "\n";
+                                fullTextLine = file.ReadLine();
+                            }
+
+                            if (fullTextLine.Contains(searchTextBox.Text))
+                            {
+
+                                textDescription += FormatedStringValue + ":" + fullTextLine + "\n\n";
+
+                            }
+                        }
+                        //if email id doesn't exit, it throws an error stating "no data found"
+                        if (textDescription == "") textDescription = "NO DATA FOUND!";
+                        //reads the email IDs from file and displays it in listbox
+                        foreach (string s in Regex.Split(textDescription, "\n"))
+                            searchDisplayListBox.Items.Add(s);
+                    }
+                }
+
+                else
+                {
+                        //throws an alert if wrong email ID is entered
+                    MessageBox.Show("Please enter valid email!", "Warning",
+                                       MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+/*after transaction radiobutton is checked, it searches the file with the transaction id, 
+                 and fetches/reads the transaction data from the file and displays it in listbox */
+                else if (transactionRadioButton.Checked)
+            {
+                    FormatedStringDisplay = "Transaction ID:";
+                    if ((int.TryParse(searchTextBox.Text, out int value))&& (value > 99999 && value < 1000000))
+                    {
+                        using (StreamReader file = new StreamReader(PATH))
+                            {
+                               
+                                while ((fullTextLine = file.ReadLine()) != null)
+                                {
+                                    if (fullTextLine.Contains(searchTextBox.Text))
+                                    {
+                                        
+                                        for (int i = 0; i < sizeOfItem; i++)
+                                        {
+                                            FormatedStringDisplay += fullTextLine;
+                                            if (i % 2 != 0) FormatedStringDisplay += ":";
+                                            else FormatedStringDisplay += "\n";
+                                            fullTextLine = file.ReadLine();
+
+                                        }
+                                    //reads the transaction IDs from file and displays it in listbox
+                                    foreach (string s in Regex.Split(FormatedStringDisplay, "\n"))
+                                            searchDisplayListBox.Items.Add(s);
+                                    }
+
+                                    
+                                }
+                                //if transaction id doesn't exist
+                                  if(FormatedStringDisplay== "Transaction ID:")
+                                {
+                                    searchDisplayListBox.Items.Add("No DATA FOUND!");
+                                }
+
+                            }
+                       
+                    }
+
+                    else
+                    {
+                        //throws an alert for invalid transaction id i.e. less than 6 digits
+                        MessageBox.Show("Please enter valid Transaction ID!", "Warning",
+                                           MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+            }                }
+            
+         
+    }
+ private void summaryButton_Click(object sender, EventArgs e)
+        {
+            
+            
+            investmentGroupBox.Visible = false;
+            investmentsOneGroupBox.Visible = false;
+            customerDetailsGroupBox.Visible = false;
+
+            string transactionsIDs = "";
+            int i = 0;
+            decimal amountInvested = 0, interestAmount = 0;
+            int totalDuration = 0;
+
+            //summary to show values of total transactions, total amount invested, total interest amount, total term period
+            try
+            {
+                using (StreamReader file = new StreamReader(PATH))
+                {
+                    while (File.ReadLines(PATH).Skip(i).Take(1).First() != null)
+                    {
+                        //the skip method here, skips 1 line->then takes the first one line just after the first line
+                        transactionsIDs += File.ReadLines(PATH).Skip(i + 1).Take(1).First() + "\n";
+                        //the skip method here, skips 3 lines->then takes the next line after the 3 lines
+                        amountInvested += decimal.Parse(File.ReadLines(PATH).Skip(i + 3).Take(1).First());
+                        //the skip method here, skips 9 lines->then takes the next line after the 9th line
+                        interestAmount += decimal.Parse(File.ReadLines(PATH).Skip(i + 9).Take(1).First());
+                        //the skip method here, skips 5 lines->then takes the next line after the 5th line
+                        totalDuration += int.Parse(File.ReadLines(PATH).Skip(i + 5).Take(1).First());
+                        //The loop runs for 16 times as we have total 16 values saved.
+                        i += 16;
+
+                    }
+                }
+            }
+            catch
+            {
+                // condition check if file content ends i.e. reaches end of file
+                if (i>0)
+                {
+                    summaryGroupBox.Visible = true;
+                    foreach (string s in Regex.Split(transactionsIDs, "\n"))
+                    transactionsListbox.Items.Add(s);
+ 
+                    totalTransNumberLabel.Text = (i / 16).ToString();
+                    totalAmoutInvestedLabel.Text = "\u20AC" + Math.Round(amountInvested,2).ToString();
+                    totalInterestCountLabel.Text = "\u20AC" + (interestAmount - amountInvested).ToString();
+                    avgInterestTermLabel.Text = (totalDuration / (i / 16)).ToString();
+                }
+                // condition check if File not found
+                else
+                {
+                    MessageBox.Show("File not Found!", "Warning",
+                                   MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            
+        }
+
+        //Compound interest calculation formula compounded monthly
+        decimal calculateBalance(decimal principalAmount, int years, decimal interestRate)
+        {
+            decimal amount = principalAmount * (decimal)Math.Pow((double)(1 + (interestRate / 100)), (12 * years));
+            return (amount);
+           
+        }
+
+        private void calculateInterest(decimal rateOne, decimal rateThree, decimal rateFive, decimal rateTen)
+        {
+             
+            interest1Label.Text = rateOne.ToString();
+            interest2Label.Text = rateThree.ToString();
+            interest3Label.Text = rateFive.ToString();
+            interest4Label.Text = rateTen.ToString();
+
+            //calling and calculation of compound interest by passing constant values in parameters
+            balanceOneLabel.Text = calculateBalance(investmentValue, YEAR_ONE, rateOne).ToString();
+            balanceTwoLabel.Text = calculateBalance(investmentValue, YEAR_THREE, rateThree).ToString();
+            balanceThreeLabel.Text = calculateBalance(investmentValue, YEAR_FIVE, rateFive).ToString();
+            balanceFourLabel.Text = calculateBalance(investmentValue, YEAR_TEN, rateTen).ToString();
+
+        }
+
+        private void GenerateCustomerId()
+        {
+            investmentGroupBox.Visible = false;
+            investmentsOneGroupBox.Visible = false;
+            customerDetailsGroupBox.Visible = true;
+            confirmButton.Visible = true;
+             
+                //Creation of random number of 6 digits
+                Random custNumber = new Random();
+                randomSixDigitLabel.Text = custNumber.Next(100000, 999999).ToString();
+
+        }
+
+        private void displayButton_Click_1(object sender, EventArgs e)
+        {
+            
+            try
+            {
+                proceedButton.Visible = true;
+                investmentValue = Decimal.Parse(investmentValueTextBox.Text);
+                investmentsOneGroupBox.Visible = true;
+                displayLabel.Visible = true;
+
+                //Condition check for investment value for less than 250000
+                if (investmentValue <= 250000)
+                {
+                    investmentsOneGroupBox.Text = "Investment Values upto €250,000";
+                    calculateInterest(INTEREST_ONE, INTEREST_THREE, INTEREST_FIVE, INTEREST_TEN);
+
+                }
+                else
+                {   //Condition check for investment value for more than 250000
+                    investmentsOneGroupBox.Text = "Investment Values more than €250,000";
+                    calculateInterest(INTEREST_RATE_ONE, INTEREST_RATE_THREE, INTEREST_RATE_FIVE, INTEREST_RATE_TEN);
+
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Please enter only Numeric data for investment value", "Warning",
+                                   MessageBoxButtons.OK, MessageBoxIcon.Error);
+                investmentValueTextBox.Focus();
+                investmentValueTextBox.SelectAll();
+
+            }
+        }
+ private void exitButton_Click(object sender, EventArgs e)
+        {
+            //closes the application
+            this.Close();
+            System.Windows.Forms.Application.ExitThread();
+
+        }
+
+
+
+        private void proceedButton_Click(object sender, EventArgs e)
+        {
+            valueLabel.Text = investmentValueTextBox.Text;
+            displayLabel.Visible = false;
+
+            /*calculation performed for term,rate and compounded balance on 4 radio button selections.Also calls 
+              random number function to display for customer details*/
+            if (oneYearRadioButton.Checked)
+            {
+                GenerateCustomerId();
+                termDuration = YEAR_ONE;
+                rateDisplay = decimal.Parse(interest1Label.Text);
+                compoundedBalance = decimal.Parse(balanceOneLabel.Text);
+            }
+            else if (threeYearRadioButton.Checked)
+            {
+
+                GenerateCustomerId();
+                termDuration = YEAR_THREE;
+                rateDisplay = decimal.Parse(interest2Label.Text);
+                compoundedBalance = decimal.Parse(balanceTwoLabel.Text);
+
+
+            }
+
+            else if (fiveYearRadioButton.Checked)
+            {
+
+                GenerateCustomerId();
+                termDuration = YEAR_FIVE;
+                rateDisplay = decimal.Parse(interest3Label.Text);
+                compoundedBalance = decimal.Parse(balanceThreeLabel.Text);
+
+
+            }
+            else if (tenYearRadioButton.Checked)
+            {
+
+                GenerateCustomerId();
+                termDuration = YEAR_TEN;
+                rateDisplay = decimal.Parse(interest4Label.Text);
+                compoundedBalance = decimal.Parse(balanceFourLabel.Text);
+
+            }
+
+            else
+            {
+
+
+                MessageBox.Show("Please select your investment plan !", "Warning",
+                                       MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void confirmButton_Click(object sender, EventArgs e)
+        {
+            //email id validation to accept '@' and '.' 
+            bool validateEmail = emailIdValidation.IsMatch(emailTextBox.Text.Trim());
+
+            //customer name validation if textbox is empty and accepts only characters
+            if (custNameTextBox.Text == "" || !System.Text.RegularExpressions.Regex.IsMatch(custNameTextBox.Text, "^[a-zA-Z ]"))
+            {
+                MessageBox.Show("Please enter Name of Customer !", "Warning",
+                                       MessageBoxButtons.OK, MessageBoxIcon.Error);
+                custNameTextBox.Focus();
+                custNameTextBox.SelectAll();
+
+            }
+            //phone number validation if textbox is empty and takes only numeric values
+            else if (phoneNumberTextBox.Text == "" || System.Text.RegularExpressions.Regex.IsMatch(phoneNumberTextBox.Text, "[^0-9]"))
+            {
+                MessageBox.Show("Please enter Phone Number of Customer !", "Warning",
+                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
+                phoneNumberTextBox.Focus();
+                phoneNumberTextBox.SelectAll();
+
+            }
+
+
+            //email validation is textbox is empty and should contain validate email address
+            else if (emailTextBox.Text == "" || !validateEmail)
+            {
+
+                MessageBox.Show("Please enter email-id of Customer !", "Warning",
+                                       MessageBoxButtons.OK, MessageBoxIcon.Error);
+                emailTextBox.Focus();
+                emailTextBox.SelectAll();
+
+            }
+            else
+            {
+                //additional bonus of 25000 for investments greater than 3 years for 1 million and more
+                double bonusAmount = 0;
+                if (investmentValue > 1000000 && termDuration >= 3)
+                {
+                    bonusAmount = BONUS_AMOUNT;
+                }
+
+                //Message box to display transaction and customer details with an option of yes and no
+                DialogResult userChoice = MessageBox.Show("Customer Information" + "\n\nInvestment Value: " + "\u20AC" + investmentValue +
+                    "\nInvestment Term: " + termDuration + "\nInterest:" + rateDisplay + "\nBalance is:"+ "\u20AC" + Math.Round(compoundedBalance,2) + "\nExtra Bonus:" + "\u20AC" + bonusAmount +
+                    "\nTransaction ID:" + randomSixDigitLabel.Text + "\nCustomer Name: " + custNameTextBox.Text + "\nPhone Number: " + phoneNumberTextBox.Text +
+                    "\nEmail Id: " + emailTextBox.Text +
+                    "\n\n Do you want to Proceed with your investment ?", "Transaction Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                
+                //if user selects yes, data gets written/saved in the transaction file
+                if (userChoice == DialogResult.Yes)
+                {
+
+                     TextWriter textFile = new StreamWriter(PATH, append: true);
+
+                    textFile.Write("Transaction Id\n" + randomSixDigitLabel.Text + "\nInvestment Value\n" + investmentValue +
+                    "\nInvestment Term\n" + termDuration + "\nInterest\n" + rateDisplay + "\nBalance is\n" + Math.Round(compoundedBalance,2) +
+                    "\nCustomer Name\n" + custNameTextBox.Text + "\nPhone Number\n" + phoneNumberTextBox.Text +
+                    "\nEmail Id\n" + emailTextBox.Text + "\n");
+                    textFile.Close();
+
+                    MessageBox.Show("Your details have been saved successfully ", "Info",
+                                           MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    valueLabel.Text = "";
+                    randomSixDigitLabel.Text = "";
+                    custNameTextBox.Text = "";
+                    phoneNumberTextBox.Text = "";
+                    emailTextBox.Text = "";
+                    customerDetailsGroupBox.Visible = false;
+                    investmentValueTextBox.Text = "";
+                    investmentGroupBox.Visible = true;
+                    transactionRadioButton.Checked = false;
+                    emailRadioButton.Checked = false;
+                    oneYearRadioButton.Checked = false;
+                    threeYearRadioButton.Checked = false;
+                    fiveYearRadioButton.Checked = false;
+                    tenYearRadioButton.Checked = false;
+
+
+                }
+
+            }
+        }
+        private void clearButton_Click(object sender, EventArgs e)
+        {
+            //actions required when clear button is pressed
+            investmentGroupBox.Visible = true;
+            investmentValueTextBox.Text = "";
+            investmentsOneGroupBox.Visible = false;
+            searchTextBox.Visible = false;
+            summaryGroupBox.Visible = false;
+            customerDetailsGroupBox.Visible = false;
+            confirmButton.Visible = false;
+            proceedButton.Visible = false;
+            custNameTextBox.Text = "";
+            phoneNumberTextBox.Text = "";
+            emailTextBox.Text = "";
+            searchGroupBox.Visible = false;
+            transactionRadioButton.Checked = false;
+            emailRadioButton.Checked = false;
+            oneYearRadioButton.Checked = false;
+            threeYearRadioButton.Checked = false;
+            fiveYearRadioButton.Checked = false;
+            tenYearRadioButton.Checked = false;
+            displayLabel.Visible = false;
+
+            
+
+        }
+    }
+}
+
+
