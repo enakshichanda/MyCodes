@@ -1,0 +1,91 @@
+Manipulation of Numbers and Vectors Exercises 
+1) You keep track of the minutes you spend on your smartphone. The last 5 times you checked, your total minutes were: 361 667 826 923 1,178
+Enter these numbers into a vector using R. Use the function diff () on the data. What does it indicate? 
+Write answer here….
+x <- c (361, 667, 826, 923, 1178)
+x
+ [1]  361  667  826  923 1178
+diff(x)    //The difference function indicates the difference between consecutive pairs in a vector
+306 159  97 255
+< your answers in R script go here . . . try them out first > 
+Use the max() function to find the maximum number of minutes between any two times you checked, the mean() function to find the average number of minutes between checks, and the min() function to get the minimum number of minutes between checks. 
+< your answers in R script go here . . . try them out first > 
+If we consider the whole vector:
+ max(x)
+[1] 1178
+min(x)
+[1] 361
+mean(x)
+[1] 791
+If we consider any 2 values in the vector:
+> max(826,923)
+[1] 923
+> min(826,923)
+[1] 826
+> meanValue <- c(826,923)
+> mean(meanValue)
+[1] 874.5
+2) Suppose you track your commute times for two weeks (10 days) and you find the following times in minutes: 32 45 28 35 38 51 27 28 48 41 
+Enter this into R. Use the function max() to find the longest commute time, the function mean() to find the average and the function min() to find the minimum. 
+< your answers in R script go here . . . try them out first > 
+y <- c (32,45,28,35,38,51,27,28,48,41)
+y
+[1] 32 45 28 35 38 51 27 28 48 41
+max(y)
+[1] 51
+min(y)
+[1] 27
+mean(y)
+[1] 37.3
+What is the variance of this vector of commute times? The standard deviation? 
+< your answers in R script go here . . . try them out first > 
+var(y)
+[1] 76.45556
+sd(y)
+[1] 8.743887
+Oops, the 28-minute entry was a mistake. It should have been 38 minutes. Fix this mistaken entry, and then find the new average. 
+< your answers in R script go here . . . try them out first > 
+z <- replace(y, y==28, 38)
+z
+[1] 32 45 38 35 38 51 27 38 48 41
+mean(z)
+[1] 39.3
+How many times was your commute 40 minutes or more? 
+< your answers in R script go here . . . try them out first > 
+commute <- z >40
+commute
+[1] FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE
+[10]  TRUE
+> resultGreater <- sum(z>40)
+> resultGreater
+[1] 4
+What do you get? What percent of your commutes are less than 35 minutes? How can you answer this with R? 
+< your answers in R script go here . . . try them out first > 
+commuteLess <- z < 35
+commuteLess
+[1]  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE
+[10] FALSE
+> resultSmaller <-sum(z<35)
+> resultSmaller
+[1] 2
+> sum((commuteLess<35)/length(commuteLess))*100
+[1] 40
+3) Your cell phone bill varies from month to month. Suppose that is one year your phone bill has the following monthly amounts: 46 33 39 37 46 30 48 32 49 35 30 48 
+Enter this data into a variable called bill. Use the sum() function to find the amount you spent this year on the cell phone. What is the smallest amount you spent in a month? What is the largest? How many months was the amount greater than €40? What percentage was of total was this?
+bill <- c(46,33,39,37,46,30,48,32,49,35,30,48)
+> bill
+ [1] 46 33 39 37 46 30 48 32 49 35 30 48
+> sum(bill)
+[1] 473
+> max(bill)
+[1] 49
+> min(bill)
+[1] 30
+> greaterAmount <- bill > 40
+> greaterAmount
+ [1]  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+[10] FALSE FALSE  TRUE
+> sum(bill>40)
+[1] 5
+> sum(bill>40)/length(bill)*100
+[1] 41.66667
