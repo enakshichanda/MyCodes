@@ -1,0 +1,309 @@
+# Expected knowledge to resolve the assignment:
+# objected oriented programming in Python
+# classes
+# composition
+# Inheritance
+# polymorphism
+
+
+# OBS: you need to verify your own code by
+# constructing your object and calling its methods
+# in main function on the bottom of the page
+
+#####################################################################################################################
+#####################################################################################################################
+
+
+# 1. Answer the following questions.
+#
+# What is a class?
+print("A Class is like an object constructor, or a blueprint for creating objects.")
+
+# What is an instance?
+print(
+    "\nIn python a class is created by the keyword class.An object is created using the constructor of the class.This object will then be called the instance of the class.")
+
+# What is encapsulation?
+print(
+    "\nEncapsulation describes the idea of wrapping data and the methods that work on data within one unit.This puts restrictions on accessing variables and methods directly and can prevent the accidental modification of data.")
+
+# What is inheritance?
+print(
+    "\nInheritance allows us to define a class that inherits all the methods and properties from another class.Parent class is the class being inherited from, also called base class.Child class is the class that inherits from another class, also called derived class.")
+
+# What is multiple inheritance?
+print(
+    "\nMultiple inheritance is a feature of object-oriented computer programming languages in which an object or class can inherit characteristics and features from more than one parent object or parent class.")
+
+# What is polymorphism?
+print(
+    "\nPolymorphism means the ability to take various forms.In Python,Polymorphism allows us to define methods in the child class with the same name as defined in their parent class.")
+
+
+#####################################################################################################################
+#####################################################################################################################
+
+# 2. Rectangle class
+# Write a Python class named Rectangle constructed by a length and width and a method which will compute the area
+# of a rectangle.
+
+class Rectangle:
+    # +++your code here+++
+# self gives us a way to access the objects properties from inside the objects methods.
+# init allows us to initialize data while creating an instance of the class.
+    def __init__(self, breadth, length):
+        self.breadth = breadth
+        self.length = length
+
+#calculates area of the rectangle
+    def area(self):
+        return self.breadth * self.length
+
+#####################################################################################################################
+#####################################################################################################################
+# 3. Person class
+# Rewrite the Person class below so that a persons age is calculated for the first time when a new person instance is
+# created, and recalculated (when it is requested) if the day has changed since the last time that it was calculated.
+
+import datetime  # we will use this for date objects
+
+
+class Person:
+# init allows us to initialize data while creating an instance of the class.
+    def __init__(self, name, surname, birthdate, address, telephone, email):
+        self.name = name
+        self.surname = surname
+        self.birthdate = birthdate
+        self.address = address
+        self.telephone = telephone
+        self.email = email
+
+# Persons age is calculated and displayed in year, month, day format
+    def age(self):
+        today = datetime.date.today()
+        age = today.year - self.birthdate.year
+
+        if today < datetime.date(today.year, self.birthdate.month, self.birthdate.day):
+            age -= 1
+
+        return age
+
+# Example of format for the birthdate:
+# datetime.date(1992, 3, 12)
+# year, month, day
+
+#####################################################################################################################
+#####################################################################################################################
+
+# 4. Deck class
+# Create a deck of cards class. Internally, the deck of cards should use another class, a card class. Your requirements
+# are:
+# The Deck class should have a deal method to deal a single card from the deck
+# After a card is dealt, it is removed from the deck.
+# There should be a shuffle method which makes sure the deck of cards has all 52 cards and then rearranges them
+# randomly.
+# The Card class should have a suit (Hearts, Diamonds, Clubs, Spades) and a value (A,2,3,4,5,6,7,8,9,10,J,Q,K)
+
+import random
+
+class Card:
+    # init allows us to initialize data while creating an instance of the class.
+    def __init__(self, suit, value):
+        self.suit = suit
+        self.value = value
+
+    # gives the result for value and suit
+    def __repr__(self):
+        return "{} of {}".format(self.value, self.suit)
+
+
+# checks for all suit and value in the cards.
+class Deck:
+
+    def __init__(self):
+        suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+        values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+        self.cards = [Card(suit, value) for suit in suits for value in values]
+
+    # deals a single card from the deck and removes the card after it's dealt.
+    def deal(self):
+        self.rand = random.choice(self.cards)
+        self.cards.remove(self.rand)
+        print("\nTotal cards available after the 1st deal: " + str(len(self.cards)))
+        return "\nThe removed card is: " + str(self.rand)
+        # return self.cards
+
+    # it shuffles and re-arranges the cards randomly
+    def shuffle(self):
+        self.cards.append(self.rand)
+        random.shuffle(self.cards)
+        if len(self.cards) == 52:
+            print("\nTotal cards available after adding the removed card and re-shuffling is " + str(len(self.cards)))
+            print("\nFind below the reshuffled pack of cards\n\n")
+            return self.cards
+        else:
+            return "Total number of missing cards is " + str(52 - len(self.cards))
+
+#####################################################################################################################
+#####################################################################################################################
+
+# 5. Inheritance
+# From the class Employee below create:
+
+# init allows us to initialize data while creating an instance of the class with employee and name as attributes.
+class Employee:
+    def __init__(self, id_employee, name):
+        self.id_employee = id_employee
+        self.name = name
+
+
+# a. a class SalaryEmployee that inherits from Employee adding a weekly_salary as an initiation attribute
+# together with id, name
+# For example: the construction of an object of the class SalaryEmployee will be like:
+# salary_Andy = SalaryEmployee(1, 'Andy Smith', 500)
+# id_employee, name, weekly_salary
+# create a calculate_payroll method that returns the payment (i.e. weekly salary value)
+
+# SalaryEmployee inherits from Employee adding a weekly_salary as an additional attribute
+class SalaryEmployee(Employee):
+    def __init__(self, id_employee, name, weekly_salary):
+        self.id_employee = id_employee
+        self.name = name
+        self.weekly_salary = weekly_salary
+
+# calculates and returns weekly salary
+    def calculate_payroll(self):
+        return self.weekly_salary
+
+
+# b. a class HourlyEmployee
+# the objective of this class if to calculate the payroll based in two attributes: hours_worked and hour_rate
+# to that, this class will inherit from Employee and receive the as attribute the values hours_worked and hour_rate
+# OBS: you need to create a calculate_payroll method for this class that takes into consideration the hours_worked and
+# hour_rate to calculate the payment
+
+# calculates payroll based on 2 additional attributes, hours_worked and hour_rate
+class HourlyEmployee(Employee):
+    def __init__(self, id_employee, name, hours_worked, hour_rate):
+        self.hours_worked = hours_worked
+        self.hour_rate = hour_rate
+        self.hours_worked = hours_worked
+        self.hour_rate = hour_rate
+
+# calculates hours_worked and hour_rate for payment
+    def calculate_payroll(self):
+        return self.hours_worked * self.hour_rate
+
+# additional class which takes into consideration, the new attribute commission
+class CommissionEmployee(SalaryEmployee):
+
+    def __init__(self, id_employee, name, weekly_salary, commission):
+        self.weekly_salary = weekly_salary
+        self.commission = commission
+        self.commission = commission
+
+# calculates commission and weekly_salary for payment
+    def calculate_payroll(self):
+        return self.commission + self.weekly_salary
+
+
+# 6. polymorphism
+# Create/cite an example of Polymorphism in Python
+
+# Polymorphism using Function and objects.
+# We have defined three methods brand, design and os each of which is defined in the two classes Apple and Samsung
+class Apple():
+
+    def brand(self):
+        print("Apple is one of the best brands in the Industry.")
+
+    def design(self):
+        print("They have one of the best hardwares.")
+
+    def os(self):
+        print("MacOs 10.14 is the latest version.")
+
+
+class Samsung():
+
+    def brand(self):
+        print("Samsung is a Korean company.")
+
+    def design(self):
+        print("Its open source and easier to use.")
+
+    def os(self):
+        print("Samsung uses Android powered by Google.")
+
+# created a function called func() which takes an object named obj. Though we are using the name obj
+# any instantiated object will be able to be called into this function.
+def func(obj):
+    obj.brand()
+    obj.design()
+    obj.os()
+
+#####################################################################################################################
+#####################################################################################################################
+
+
+# Extra exercises for practice
+
+"""
+Define a class named Shape and its subclass Square. The Square class has an init function which takes a 
+length as argument. Both classes have a area function which can print the area of the shape where Shape's area is 0 
+by default.
+
+Hints:
+
+To override a method in super class, we can define a method with the same name in the super class."""
+
+"""Define a class named Rectangle which can be constructed by a length and width. The Rectangle class has a 
+method which can compute the area. 
+
+Hints:
+
+Use def methodName(self) to define a method."""
+
+if __name__ == '__main__':
+    print("\nArea of rectangle program:")
+    calculateArea = Rectangle(20, 30)
+    print("Area of rectangle is:", calculateArea.area())
+
+    print("\nClasses program:")
+    person = Person(
+        "Enakshi",
+        "Chanda",
+        datetime.date(1994, 05, 06),  # year, month, day
+        "177 Upper Salthill",
+        "0899 648 906",
+        "e.chanda1@nuigalway.ie"
+    )
+
+    print(person.name)
+    print(person.email)
+    print(person.age())
+
+    print("\nDeck of cards Output:")
+    my_deck = Deck()
+    print(my_deck.deal())  # if we comment this, only the shuffle would work.
+    print(my_deck.shuffle())  # commenting this, the deal would work where we would see the 52 cards in the deck.
+
+
+ # object creation and call for classes to display salary, payroll and commission
+    print("\nEmployee Salary:")
+    salary = SalaryEmployee(100, "Ena", 79000)
+    print("Salary of the employee is " + str(salary.calculate_payroll()))
+    payroll = HourlyEmployee(100, "Ena", 10, 15000)
+    print("Payroll is " + str(payroll.calculate_payroll()))
+    commission = CommissionEmployee(100, "Ena", 15000, 100)
+    print("Commission paid is " + str(commission.calculate_payroll()))
+
+    print("\nPolymorphism code:")
+# instantiations of both the classes Apple and Samsung has been created
+    obj_apple = Apple()
+    obj_samsung = Samsung()
+
+    func(obj_apple)
+    func(obj_samsung)
+
+
